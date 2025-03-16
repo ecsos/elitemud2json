@@ -1,5 +1,10 @@
-# circle2json
+# elitemud2json
 
+```
+The purpose of this project is to adapt to elitemud classic's source code to be used in mudlet.
+
+below is the text from natefinch/circle2json which this repo was forked from.
+```
 ```
 circle2json converts CircleMUD world (room) files into json files.
 

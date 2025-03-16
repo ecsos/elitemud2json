@@ -2,22 +2,37 @@ package lib
 
 // Room bit definitions
 const (
-	ROOM_DARK        = 1 << iota // Room is dark.
-	ROOM_DEATH                   // Room is a death trap; char ``dies'' (no xp lost).
-	ROOM_NOMOB                   // MOBs (monsters) cannot enter room.
-	ROOM_INDOORS                 // Room is indoors.
-	ROOM_PEACEFUL                // Room is peaceful (violence not allowed).
-	ROOM_SOUNDPROOF              // Shouts, gossips, etc. won't be heard in room.
-	ROOM_NOTRACK                 // ``track'' can't find a path through this room.
-	ROOM_NOMAGIC                 // All magic attempted in this room will fail.
-	ROOM_TUNNEL                  // Only one person allowed in room at a time.
-	ROOM_PRIVATE                 // Cannot teleport in or GOTO if two people here.
-	ROOM_GODROOM                 // Only LVL_GOD and above allowed to enter.
-	ROOM_HOUSE                   // Reserved for internal use.  Do not set.
-	ROOM_HOUSE_CRASH             // Reserved for internal use.  Do not set.
-	ROOM_ATRIUM                  // Reserved for internal use.  Do not set.
-	ROOM_OLC                     // Reserved for internal use.  Do not set.
-	ROOM_BFS_MARK                // Reserved for internal use.  Do not set.
+	ROOM_DARK    = 1 << iota
+	ROOM_DEATH
+	ROOM_NOMOB
+	ROOM_INDOORS
+	ROOM_LAWFUL
+	ROOM_NEUTRAL
+	ROOM_CHAOTIC
+	ROOM_NOMAGIC
+	ROOM_TUNNEL
+	ROOM_PRIVATE
+	ROOM_GODROOM
+	ROOM_BFS_MARK
+	ROOM_ZERO_MANA
+	ROOM_DISPELL
+	ROOM_SILENT
+	ROOM_IN_AIR
+	ROOM_OCS
+	ROOM_PKOK
+	ROOM_ARENA
+	ROOM_REGEN
+	ROOM_NO_TELEPORT
+	ROOM_NO_SCRY
+	ROOM_NO_FLEE
+	ROOM_DAMAGE
+	ROOM_NOTRACK
+	ROOM_NOSWEEP
+	ROOM_NOSCOUT
+	ROOM_NOSLEEP
+	ROOM_NOSUMMON
+	ROOM_NOQUIT
+	ROOM_NODROP
 )
 
 // RoomChars converts a letter-style bit to the corresponding bit name
@@ -26,18 +41,33 @@ var RoomChars = map[rune]string{
 	'b': "DEATH",
 	'c': "NOMOB",
 	'd': "INDOORS",
-	'e': "PEACEFUL",
-	'f': "SOUNDPROOF",
-	'g': "NOTRACK",
+	'e': "LAWFUL",
+	'f': "NEUTRAL",
+	'g': "CHAOTIC",
 	'h': "NOMAGIC",
 	'i': "TUNNEL",
 	'j': "PRIVATE",
 	'k': "GODROOM",
-	'l': "HOUSE",
-	'm': "HOUSE_CRASH",
-	'n': "ATRIUM",
-	'o': "OLC",
-	'p': "BFS_MARK",
+	'l': "BFS_MARK",
+	'm': "ZERO_MANA",
+	'n': "DISPELL",
+	'o': "SILENT",
+	'p': "IN_AIR",
+	'q': "OCS",
+	'r': "PKOK",
+	's': "ARENA",
+	't': "REGEN",
+	'u': "NO_TELEPORT",
+	'v': "NO_SCRY",
+	'w': "NO_FLEE",
+	'x': "DAMAGE",
+	'y': "NOTRACK",
+	'z': "NOSWEEP",
+	'A': "NOSCOUT",
+	'B': "NOSLEEP",
+	'C': "NOSUMMON",
+	'D': "NOQUIT",
+	'E': "NODROP",
 }
 
 var RoomBits = map[int]string{
@@ -45,18 +75,33 @@ var RoomBits = map[int]string{
 	ROOM_DEATH:       "DEATH",
 	ROOM_NOMOB:       "NOMOB",
 	ROOM_INDOORS:     "INDOORS",
-	ROOM_PEACEFUL:    "PEACEFUL",
-	ROOM_SOUNDPROOF:  "SOUNDPROOF",
-	ROOM_NOTRACK:     "NOTRACK",
+	ROOM_LAWFUL:      "LAWFUL",
+	ROOM_NEUTRAL:     "NEUTRAL",
+	ROOM_CHAOTIC:     "CHAOTIC",
 	ROOM_NOMAGIC:     "NOMAGIC",
 	ROOM_TUNNEL:      "TUNNEL",
 	ROOM_PRIVATE:     "PRIVATE",
 	ROOM_GODROOM:     "GODROOM",
-	ROOM_HOUSE:       "HOUSE",
-	ROOM_HOUSE_CRASH: "HOUSE_CRASH",
-	ROOM_ATRIUM:      "ATRIUM",
-	ROOM_OLC:         "OLC",
 	ROOM_BFS_MARK:    "BFS_MARK",
+	ROOM_ZERO_MANA:   "ZERO_MANA",
+	ROOM_DISPELL:     "DISPELL",
+	ROOM_SILENT:      "SILENT",
+	ROOM_IN_AIR:	  "IN_AIR",
+	ROOM_OCS:         "OCS",
+	ROOM_PKOK:        "PKOK",
+	ROOM_ARENA:	      "ARENA",
+	ROOM_REGEN:       "REGEN",
+	ROOM_NO_TELEPORT: "NO_TELEPORT",
+	ROOM_NO_SCRY:     "NO_SCRY",
+	ROOM_NO_FLEE:     "NO_FLEE",
+	ROOM_DAMAGE:      "DAMAGE",
+	ROOM_NOTRACK: 	  "NOTRACK",
+	ROOM_NOSWEEP:     "NOSWEEP",
+	ROOM_NOSCOUT:     "NOSCOUT",
+	ROOM_NOSLEEP:     "NOSLEEP",
+	ROOM_NOSUMMON:    "NOSUMMON",
+	ROOM_NOQUIT:      "NOQUIT",
+	ROOM_NODROP:      "NODROP",
 }
 
 // BitVectorToNames converts a room's bitvector into a list of bit names

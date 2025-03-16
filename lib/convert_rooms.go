@@ -57,6 +57,7 @@ type Room struct {
 	Sector      string      `json:"sector"`
 	Exits       []Exit      `json:"exits"`
 	Extras      []ExtraDesc `json:"extra_descs"`
+	Procs       []Proc      `json:"procs"`
 }
 
 // Exit represents a way you may move out of a room.
@@ -74,7 +75,14 @@ type ExtraDesc struct {
 	Keywords    []string `json:"keywords"`
 	Description string   `json:"description"`
 }
-
+// Room Procs are special procedures
+type Proc struct {
+	ProcAction    string `json:"proc"`
+	PercentChance      int `json:"percentchance"`
+	Destination int      `json:"destination"`
+	Direction   string   `json:"direction"`
+	MessageToPlayer string   `json:"messagetoplayer"`
+}
 // ParseWldFile parses the given CircleMUD wld file.
 func ParseWldFile(filename string) (rooms []Room, err error) {
 	// need this because scan can panic if you send it too much stuff
@@ -116,7 +124,10 @@ func ParseWldFile(filename string) (rooms []Room, err error) {
 			// file with $, but it doesn't really seem to be necessary.
 			return rooms, nil
 		}
-		if strings.TrimSpace(scanner.Text()) == "$" {
+		if strings.TrimSpace(scanner.Text()) == "$~" {
+			return rooms, nil
+		}
+		if strings.TrimSpace(scanner.Text()) == "#99999" {
 			return rooms, nil
 		}
 		room, err := scanRoom(scanner)
@@ -196,6 +207,12 @@ func scanRoom(scanner *fileScanner) (*Room, error) {
 				return nil, err
 			}
 			r.Extras = append(r.Extras, *ex)
+		case strings.HasPrefix(s, ">"):
+			proc, err := scanProcs(scanner)
+			if err != nil {
+				return nil, err
+			}
+			r.Procs = append(r.Procs, *proc)
 		default:
 			return nil, fmt.Errorf("unexpected token in room definition: %q", s)
 		}
@@ -234,6 +251,7 @@ func scanDir(scanner *fileScanner) (*Exit, error) {
 	}
 	flag, ok := DoorFlags[fields[0]]
 	if !ok {
+		//fmt.Errorf("unknown door flag %q", fields[0])
 		return nil, fmt.Errorf("unknown door flag %q", fields[0])
 	}
 	ex.DoorFlag = flag
@@ -268,4 +286,106 @@ func scanExtra(scanner *fileScanner) (*ExtraDesc, error) {
 	}
 	ex.Description = desc
 	return ex, nil
+}
+
+func scanProcs(scanner *fileScanner) (*Proc, error) {
+	s1 := strings.TrimSpace(scanner.Text()[1:])
+	// fmt.Println("s1: ", s1)
+	if !strings.HasSuffix(s1, "~") {
+		return nil, fmt.Errorf("expected procs to end in ~, but got %q", s1)
+	}
+	// trim first character off
+	s2 := strings.TrimSpace(s1[:len(s1)-1])
+	// fmt.Println("s2: ", s2)
+	fields := strings.Split(s2, " ")
+	if len(fields) < 2 {
+		return nil, fmt.Errorf("expected room proc flags to be <percent chance> <destination room vnum> <direction> but got %q", scanner.Text())
+	}
+	// fmt.Println("ProcAction: ", fields[0])
+	
+	procaction, ok := RoomProcs[fields[0]]
+	if !ok {
+		return nil, fmt.Errorf("unknown room proc %q", fields[0])
+	}
+	// fmt.Println("chance: ", fields[1])
+	proc := &Proc{
+		ProcAction: procaction,
+	}
+	
+	switch fields[0] {
+	case "trans", "ttrans":
+		pchance, err := strconv.Atoi(fields[1])
+		if err != nil {
+			return nil, fmt.Errorf("invalid percentage chance: %q", fields[1])
+		}
+		proc.PercentChance = pchance
+		dest1, err := strconv.Atoi(fields[2])
+		if err != nil {
+			return nil, fmt.Errorf("invalid destination: %q", fields[2])
+		}
+		proc.Destination = dest1
+
+		if len(fields) > 3 {
+			// fmt.Println("direction: ", fields[3])
+			proc.Direction = fields[3]
+		}
+
+		desc, err := scanner.ScanUntil("~")
+		if err != nil {
+			return nil, err
+		}
+		// fmt.Println("msg2player: ", desc)
+		proc.MessageToPlayer = desc
+	case "echo":
+		pchance, err := strconv.Atoi(fields[1])
+		//fmt.Println("echo: ", fields[1], fields[0])
+		if err != nil {
+			return nil, fmt.Errorf("invalid percentage chance: %q", fields[1])
+		}
+		proc.PercentChance = pchance
+		desc, err := scanner.ScanUntil("~")
+		if err != nil {
+			return nil, err
+		}
+		// fmt.Println("msg2player: ", desc)
+		proc.MessageToPlayer = desc
+	case "push": 
+		pchance, err := strconv.Atoi(fields[1])
+		if err != nil {
+			return nil, fmt.Errorf("invalid percentage chance: %q", fields[1])
+		}
+		proc.PercentChance = pchance
+		proc.Direction = fields[2]
+		desc, err := scanner.ScanUntil("~")
+		if err != nil {
+			return nil, err
+		}
+		// fmt.Println("msg2player: ", desc)
+		proc.MessageToPlayer = desc
+	case "pushall":
+		pchance, err := strconv.Atoi(fields[1])
+		if err != nil {
+			return nil, fmt.Errorf("invalid percentage chance: %q", fields[1])
+		}
+		proc.PercentChance = pchance
+		proc.Direction = fields[2]
+		desc, err := scanner.ScanUntil("~")
+		if err != nil {
+			return nil, err
+		}
+		// fmt.Println("msg2player: ", desc)
+		proc.MessageToPlayer = desc
+	default:
+		/* code */
+	}
+
+	// num, err := strconv.Atoi(fields[1])
+	// if err != nil {
+	// 	return nil, fmt.Errorf("invalid key number: %q", fields[1])
+	// }
+
+	
+// proc := strings.Fields(s[:len(s)-1])
+
+	return proc, nil
 }
